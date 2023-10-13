@@ -76,6 +76,21 @@ class PlaylistState extends State<Playlist> {
           artist: 'Louis Armstrong',
           length: const Duration(minutes: 2, seconds: 39),
         ),
+        Song(
+          title: 'Sacrifice',
+          artist: 'Simon & Garfunkel',
+          length: const Duration(minutes: 3, seconds: 50),
+        ),
+        Song(
+          title: 'Imagine',
+          artist: 'John Lennon',
+          length: const Duration(minutes: 3, seconds: 39),
+        ),
+        Song(
+          title: 'What a Wonderful World',
+          artist: 'Louis Armstrong',
+          length: const Duration(minutes: 2, seconds: 39),
+        ),
       ];
     });
   }

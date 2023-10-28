@@ -6,12 +6,6 @@ void main() {
   runApp(const MyApp());
 }
 
-List<String> songsList = [
-  "https://songlanka.sgp1.digitaloceanspaces.com/mp3/Mahada-Premadare-Cover-Ishara-Akalanka-www.song.lk.mp3",
-  "https://songlanka.sgp1.digitaloceanspaces.com/mp3/Kaviya-Oba-Reliving-Prime-Classics-Umara-Sinhawansa-www.song.lk.mp3",
-  "https://songlanka.sgp1.digitaloceanspaces.com/mp3/Supem-Hangum-Oben-Epa-Cover-Naduni-Yameesha-www.song.lk.mp3",
-];
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -40,13 +34,16 @@ class SmartRadioHome extends StatefulWidget {
 class _SmartRadioHomeState extends State<SmartRadioHome> {
   AudioPlayer player = AudioPlayer();
   static const Playlist playlist = Playlist();
+  int playerIndex = 0;
+  bool isPlaying = false;
 
   void _playSong() async {
     await player.stop();
     await player.dispose();
 
     player = AudioPlayer();
-    await player.play(UrlSource(songsList[0]));
+    print(songsList);
+    await player.play(UrlSource(songsList[playerIndex].url));
   }
 
   void _prevSong() async {
@@ -54,7 +51,11 @@ class _SmartRadioHomeState extends State<SmartRadioHome> {
     await player.dispose();
 
     player = AudioPlayer();
-    await player.play(UrlSource(songsList[1]));
+
+    if (playerIndex > 0) {
+      playerIndex--;
+    }
+    await player.play(UrlSource(songsList[playerIndex].url));
   }
 
   void _nextSong() async {
@@ -62,11 +63,22 @@ class _SmartRadioHomeState extends State<SmartRadioHome> {
     await player.dispose();
 
     player = AudioPlayer();
-    await player.play(UrlSource(songsList[2]));
+
+    if (playerIndex < songsList.length - 1) {
+      playerIndex++;
+    }
+
+    await player.play(UrlSource(songsList[playerIndex].url));
+  }
+
+  void _stopSong() async {
+    playerIndex = 0;
+    await player.pause();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
         theme: ThemeData(
           appBarTheme: AppBarTheme(
@@ -77,7 +89,7 @@ class _SmartRadioHomeState extends State<SmartRadioHome> {
         home: Scaffold(
       appBar: AppBar(
         // backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text(widget.title)
       ),
       body: Center(
         child: Column(
@@ -85,7 +97,7 @@ class _SmartRadioHomeState extends State<SmartRadioHome> {
           children: <Widget>[
             const Expanded(
                 child: Text(
-                'Good Morning ⛅',
+                "Hello there ⛅!",
                 style: TextStyle(fontSize: 25, color: Colors.teal),
             )),
             const Row(
@@ -128,6 +140,16 @@ class _SmartRadioHomeState extends State<SmartRadioHome> {
                   ),
                   child: const Icon(
                     Icons.skip_next_outlined,
+                    size: 72.0,
+                  ),
+                ),
+                TextButton(
+                  onPressed: _stopSong,
+                  style: ButtonStyle(
+                    foregroundColor: MaterialStateProperty.all<Color>(Colors.teal.shade600),
+                  ),
+                  child: const Icon(
+                    Icons.stop_circle_outlined,
                     size: 72.0,
                   ),
                 ),

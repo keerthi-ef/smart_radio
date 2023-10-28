@@ -1,6 +1,13 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:smart_radio/models/song.dart';
 import 'dart:async';
+
+import 'package:smart_radio/services/FirebaseUtil.dart';
+
+String greeting = '';
+List<Song> songsList = [];
 
 class Playlist extends StatefulWidget {
   const Playlist({Key? key}) : super(key: key);
@@ -15,7 +22,8 @@ class PlaylistState extends State<Playlist> {
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 30), (Timer t) => refreshPlaylist());
+    _timer = Timer.periodic(const Duration(seconds: 10), (Timer t) => refreshPlaylist());
+    refreshPlaylist();
   }
 
   @override
@@ -24,83 +32,32 @@ class PlaylistState extends State<Playlist> {
     super.dispose();
   }
 
-  // Hard-coded playlist values
-  List<Song> playlist = [
-    Song(
-      title: 'Sacrifice',
-      artist: 'Simon & Garfunkel',
-      length: const Duration(minutes: 3, seconds: 50),
-    ),
-    Song(
-      title: 'Imagine',
-      artist: 'John Lennon',
-      length: const Duration(minutes: 3, seconds: 39),
-    ),
-    Song(
-      title: 'What a Wonderful World',
-      artist: 'Louis Armstrong',
-      length: const Duration(minutes: 2, seconds: 39),
-    ),
-  ];
-
   void refreshPlaylist() async {
+    Map<String, dynamic> data = await fetchPlaylist();
     setState(() {
-      playlist = [
-        Song(
-          title: 'Ten Thousand Promises',
-          artist: 'Simon & Garfunkel',
-          length: const Duration(minutes: 3, seconds: 50),
-        ),
-        Song(
-          title: 'Holy Cow',
-          artist: 'John Lennon',
-          length: const Duration(minutes: 3, seconds: 39),
-        ),
-        Song(
-          title: 'Frozen',
-          artist: 'Louis Armstrong',
-          length: const Duration(minutes: 2, seconds: 39),
-        ),
-        Song(
-          title: 'Sacrifice',
-          artist: 'Simon & Garfunkel',
-          length: const Duration(minutes: 3, seconds: 50),
-        ),
-        Song(
-          title: 'Imagine',
-          artist: 'John Lennon',
-          length: const Duration(minutes: 3, seconds: 39),
-        ),
-        Song(
-          title: 'What a Wonderful World',
-          artist: 'Louis Armstrong',
-          length: const Duration(minutes: 2, seconds: 39),
-        ),
-        Song(
-          title: 'Sacrifice',
-          artist: 'Simon & Garfunkel',
-          length: const Duration(minutes: 3, seconds: 50),
-        ),
-        Song(
-          title: 'Imagine',
-          artist: 'John Lennon',
-          length: const Duration(minutes: 3, seconds: 39),
-        ),
-        Song(
-          title: 'What a Wonderful World',
-          artist: 'Louis Armstrong',
-          length: const Duration(minutes: 2, seconds: 39),
-        ),
-      ];
+      // read the json file from the server
+      greeting = data['greeting'];
+
+      var songs = data['songs'];
+      songsList.clear();
+      // loop trough the songs and create a list of Song objects
+      for (var song in songs) {
+        songsList.add(Song(
+          title: song['title'],
+          artist: song['artist'],
+          length: Duration(seconds: int.parse(song['duration'])),
+          url: song['url'],
+        ));
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: playlist.length,
+      itemCount: songsList.length,
       itemBuilder: (context, index) {
-        final song = playlist[index];
+        final song = songsList[index];
 
         return ListTile(
           leading: const Icon(Icons.play_arrow),
